@@ -66,14 +66,17 @@ app.get('/clothing-items', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch clothing items' });
   }
 });
-
 // Search clothing items by name
 app.get('/clothing-items/search', async (req, res) => {
   const searchQuery = req.query.q;
 
   try {
+    // Split the search query into words and create a regex pattern to match any of the words
+    const searchWords = searchQuery.split(' ').filter(word => word.length > 0);
+    const regex = new RegExp(searchWords.join('|'), 'i'); // Join words with '|' for OR operation
+
     const items = await ClothingItem.find({
-      name: { $regex: searchQuery, $options: 'i' } // Case-insensitive search
+      name: { $regex: regex } // Case-insensitive search for any of the words
     });
 
     res.status(200).json(items);
@@ -81,6 +84,7 @@ app.get('/clothing-items/search', async (req, res) => {
     res.status(500).json({ error: 'Failed to search for clothing items' });
   }
 });
+
 
 // Server setup
 const PORT = process.env.PORT || 3000;

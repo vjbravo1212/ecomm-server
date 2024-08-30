@@ -70,20 +70,33 @@ app.get('/clothing-items', async (req, res) => {
 app.get('/clothing-items/search', async (req, res) => {
   const searchQuery = req.query.q;
 
+  if (!searchQuery || searchQuery.trim() === '') {
+    return res.status(400).json({ error: 'Search query cannot be empty' });
+  }
+
   try {
-    // Split the search query into words and create a regex pattern to match any of the words
-    const searchWords = searchQuery.split(' ').filter(word => word.length > 0);
-    const regex = new RegExp(searchWords.join('|'), 'i'); // Join words with '|' for OR operation
+    const regex = new RegExp(searchQuery.trim(), 'i');
+    console.log(`Search Regex: ${regex}`);
 
     const items = await ClothingItem.find({
-      name: { $regex: regex } // Case-insensitive search for any of the words
+      name: { $regex: regex }
     });
+
+    console.log(`Found Items: ${items.length}`); // Log the number of items found
+
+    if (items.length === 0) {
+      return res.status(404).json({ message: 'No items found' });
+    }
 
     res.status(200).json(items);
   } catch (error) {
     res.status(500).json({ error: 'Failed to search for clothing items' });
   }
 });
+
+
+
+
 
 
 // Server setup

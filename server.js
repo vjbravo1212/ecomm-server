@@ -26,6 +26,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Routes
 
+app.get('/wake-up', (req, res) => {
+  res.json({ message: "Server is awake!" });
+});
+
+
+
 // Add a new clothing item
 app.post('/clothing-items', async (req, res) => {
   const { name, price, image_url } = req.body;
